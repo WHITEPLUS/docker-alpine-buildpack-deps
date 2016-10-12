@@ -102,8 +102,8 @@ RUN apk add --no-cache --virtual .persistent-deps \
  && curl -o node-${NODE_VERSION}.tar.gz -sSL https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}.tar.gz \
  && curl -o SHASUMS256.txt.asc -sSL https://nodejs.org/dist/${NODE_VERSION}/SHASUMS256.txt.asc \
  && gpg --verify SHASUMS256.txt.asc \
- && grep node-${NODE_VERSION}.tar.gz SHASUMS256.txt.asc | sha256sum -c -
- && tar -zxf node-${NODE_VERSION}.tar.gz
+ && grep node-${NODE_VERSION}.tar.gz SHASUMS256.txt.asc | sha256sum -c - \
+ && tar -zxf node-${NODE_VERSION}.tar.gz \
  && cd node-${NODE_VERSION} \
  && export GYP_DEFINES="linux_use_gold_flags=0" \
  && ./configure --prefix=/usr ${NODE_CONFIG_FLAGS} \
@@ -117,7 +117,7 @@ RUN apk add --no-cache --virtual .persistent-deps \
  && if [ -x /usr/bin/npm ]; then \
       npm install -g npm@${NPM_VERSION} && find /usr/lib/node_modules/npm -name test -o -name .bin -type d | xargs rm -rf; \
     fi \
- && apk del .build-deps
+ && apk del .build-deps \
  && rm -rf \
     /etc/ssl \
     /node-${NODE_VERSION}.tar.gz \
