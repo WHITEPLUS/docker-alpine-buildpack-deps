@@ -10,6 +10,8 @@ ENV PHP_SHA256 203a854f0f243cb2810d1c832bc871ff133eccdf1ff69d32846f93bc1bef58a8
 ENV PHP_GPG_KEYS \
     0BD78B5F97500D450838F95DFE857D9A90D90EC1 \
     6E4F6AB321FDC07F2C332E3AC2BF0BC433CFC8B3
+COPY docker-php-source /usr/local/bin/
+COPY docker-php-ext-* /usr/local/bin/
 RUN apk add --no-cache --virtual .persistent-deps \
     ca-certificates \
     curl \
@@ -37,7 +39,6 @@ RUN apk add --no-cache --virtual .persistent-deps \
  && gpg --batch --verify php.tar.xz.asc php.tar.xz \
  && rm -r "$GNUPGHOME" \
  && apk del .fetch-deps \
- && cp docker-php-source /usr/local/bin/ \
  && apk add --no-cache --virtual .build-deps \
     autoconf \
     file \
@@ -66,13 +67,10 @@ RUN apk add --no-cache --virtual .persistent-deps \
  && make clean \
  && docker-php-source delete \
  && runDeps="$(scanelf --needed --nobanner --recursive /usr/local \
-| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
-| sort -u \
-| xargs -r apk info --installed \
-| sort -u)" \
+| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' | sort -u \
+| xargs -r apk info --installed | sort -u)" \
  && apk add --no-cache --virtual .php-rundeps $runDeps \
  && apk del .build-deps
-#COPY docker-php-ext-* /usr/local/bin/
 
 
 #
